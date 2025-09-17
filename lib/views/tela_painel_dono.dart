@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_dog_app/controller/donocontroller.dart';
 import 'package:my_dog_app/models/dono_model.dart';
+import 'package:my_dog_app/service/dono_service.dart';
 
 class PainelDono extends StatefulWidget {
   const PainelDono({super.key});
@@ -92,7 +93,7 @@ class _PainelDonoState extends State<PainelDono> {
                     SizedBox(height: 20),
 
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
                           final dono = Dono(
                             nome: _nomeController.text,
@@ -104,7 +105,7 @@ class _PainelDonoState extends State<PainelDono> {
                             funcao: '',
                           );
 
-                          _donoController.atualizarDono(dono);
+                          await _donoController.atualizarDono(dono);
 
                           _nomeController.clear();
                           _emailController.clear();
@@ -134,6 +135,23 @@ class _PainelDonoState extends State<PainelDono> {
                           ),
                         ],
                       ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final donos = await _donoController.donoService
+                            .lerDonos();
+
+                        if (donos.isEmpty) {
+                          print("Nenhum dono cadastrado.");
+                        } else {
+                          for (var d in donos) {
+                            print(
+                              "Nome: ${d.nome}, Email: ${d.email}, Telefone: ${d.telefone}",
+                            );
+                          }
+                        }
+                      },
+                      child: Text("Mostrar Donos"),
                     ),
                   ],
                 ),

@@ -14,22 +14,36 @@ class DonoController {
 
   String? validarEmail(String? email) {
     if (email == null || email.isEmpty) return 'O email não pode estar vazio';
-    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email))
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
       return 'Formato de email inválido';
+    }
+
     return null;
   }
 
   String? validarTelefone(String? telefone) {
-    if (telefone == null || telefone.isEmpty)
+    if (telefone == null || telefone.isEmpty) {
       return 'O telefone não pode estar vazio';
-    if (!RegExp(r'^\d{10,11}$').hasMatch(telefone))
+    }
+    if (!RegExp(r'^\d{10,11}$').hasMatch(telefone)) {
       return 'Formato de telefone inválido';
+    }
     return null;
   }
 
   String? validarEndereco(String? endereco) {
-    if (endereco == null || endereco.isEmpty)
+    if (endereco == null || endereco.isEmpty) {
       return 'O endereço não pode estar vazio';
+    }
+
+    return null;
+  }
+
+  String? validarSenha(String? senha) {
+    if (senha == null || senha.isEmpty) {
+      return "Campo obrigatório.";
+    }
+
     return null;
   }
 
@@ -37,7 +51,7 @@ class DonoController {
   // Salvar dono no JSON
   // =======================
 
-  Future<void> salvarDono(Dono dono) async {
+  Future<void> cadastrarDono(Dono dono) async {
     // Lê os donos existentes do JSON
     final List<Dono> donosExistentes = await donoService.lerDonos();
 
@@ -51,19 +65,20 @@ class DonoController {
   // =======================
   // Verificar login
   // =======================
-  Future<Dono?> verificarLogin(String email, String telefone) async {
+  Future<Dono?> verificarLogin(String email, String senha) async {
     final List<Dono> donosExistentes = await donoService.lerDonos();
-    try {
-      return donosExistentes.firstWhere(
-        (d) => d.email == email && d.telefone == telefone,
-      );
-    } catch (e) {
-      return null; // Não encontrou
+
+    for (var d in donosExistentes) {
+      if (d.email == email && d.senha == senha) {
+        return d; // encontrou, já pode devolver o dono
+      }
     }
+
+    // se percorreu a lista inteira e não achou
+    return null;
   }
 
   Future<void> atualizarDono(Dono donoAtualizado) async {
-    
     final List<Dono> donosExistentes = await donoService.lerDonos();
 
     for (int i = 0; i < donosExistentes.length; i++) {

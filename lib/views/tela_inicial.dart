@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_dog_app/views/tela_inicial_dono.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_dog_app/views/tela_login.dart';
 
 class TelaInicial extends StatefulWidget {
@@ -20,11 +20,8 @@ class _TelaInicialState extends State<TelaInicial> {
     // Espera por 3 segundos (3000 milissegundos)
     await Future.delayed(const Duration(seconds: 3));
 
-    // Navega para a tela de login e remove a TelaInicial do histórico
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const TelaInicialDono()),
-    );
+    GoRouter.of(context).go('/login');
+    // Navega para a tela de login
   }
 
   @override

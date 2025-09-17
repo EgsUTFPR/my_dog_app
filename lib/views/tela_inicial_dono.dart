@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:my_dog_app/models/dono_model.dart';
 import 'package:my_dog_app/views/tela_meus_pets.dart';
 import 'package:my_dog_app/views/tela_painel_dono.dart';
 import 'package:my_dog_app/views/tela_passeios.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class TelaInicialDono extends StatefulWidget {
-  const TelaInicialDono({super.key});
+  final Dono dono;
+  const TelaInicialDono({super.key, required this.dono});
 
   @override
   State<TelaInicialDono> createState() => _TelaInicialDonoState();
@@ -52,7 +54,7 @@ class _TelaInicialDonoState extends State<TelaInicialDono> {
         onTap: (pagina) {
           pc.animateToPage(
             pagina,
-            duration: const Duration(milliseconds: 400),
+            duration: const Duration(milliseconds: 50),
             curve: Curves.ease,
           );
         },

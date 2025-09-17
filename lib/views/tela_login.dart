@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:my_dog_app/controller/donocontroller.dart';
+import 'package:my_dog_app/views/tela_cadastro.dart';
 
 class telaLogin extends StatefulWidget {
   const telaLogin({super.key});
@@ -9,6 +12,10 @@ class telaLogin extends StatefulWidget {
 
 class _telaLoginState extends State<telaLogin> {
   final _form = GlobalKey<FormState>();
+
+  DonoController dono = DonoController();
+  final _emailController = TextEditingController();
+  final _senhaController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +37,7 @@ class _telaLoginState extends State<telaLogin> {
               child: Column(
                 children: [
                   TextFormField(
+                    controller: _emailController,
                     decoration: InputDecoration(
                       labelText: 'Email',
                       border: OutlineInputBorder(),
@@ -45,6 +53,7 @@ class _telaLoginState extends State<telaLogin> {
                   SizedBox(height: 16.0), // espaço entre os campos
 
                   TextFormField(
+                    controller: _senhaController,
                     decoration: InputDecoration(
                       labelText: 'Senha',
                       border: OutlineInputBorder(),
@@ -59,16 +68,56 @@ class _telaLoginState extends State<telaLogin> {
                     obscureText: true, // para esconder a senha
                   ),
                   SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.login),
-                        SizedBox(width: 8),
-                        Text('Login', style: TextStyle(fontSize: 20)),
-                      ],
-                    ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (_form.currentState!.validate()) {
+                            final resultado = await dono.verificarLogin(
+                              _emailController.text,
+                              _senhaController.text,
+                            );
+
+                            if (resultado == null) {
+                              // Se falhar → erro
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Email ou senha incorretos!"),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            } else {
+                              // Se der certo → navega para a tela do dono, passando o objeto
+                              GoRouter.of(context).go(
+                                '/tela-inicial-dono', // rota definida no seu GoRouter
+                                extra: resultado, // passa o objeto Dono
+                              );
+                            }
+                          }
+                        },
+                        child: Row(
+                          children: const [
+                            Icon(Icons.login),
+                            SizedBox(width: 8),
+                            Text('Login', style: TextStyle(fontSize: 20)),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(width: 16.0),
+                      ElevatedButton(
+                        onPressed: () {
+                          GoRouter.of(context).go('/cadastro'); // rota lógica
+                        },
+                        child: Row(
+                          children: [
+                            Text('Cadastre-se', style: TextStyle(fontSize: 20)),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
