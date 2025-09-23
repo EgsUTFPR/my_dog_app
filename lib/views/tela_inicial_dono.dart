@@ -34,13 +34,20 @@ class _TelaInicialDonoState extends State<TelaInicialDono> {
     return Scaffold(
       body: PageView(
         controller: pc,
-        children: const [PainelDono(), MeusPets(), Passeios()],
+        children: [
+          PainelDono(
+            emailLogado: widget.dono.email,
+          ), // <- passei o email do dono logado
+          MeusPets(),
+          Passeios(),
+        ],
         onPageChanged: (value) {
           setState(() {
             paginaAtual = value;
           });
         },
       ),
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: paginaAtual,
         items: const [
