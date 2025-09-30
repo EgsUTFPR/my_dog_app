@@ -1,5 +1,7 @@
 import 'package:my_dog_app/models/dono_model.dart';
-import 'package:my_dog_app/service/dono_service.dart';
+import 'package:my_dog_app/models/passeador_model.dart';
+import 'package:my_dog_app/services/dono_service.dart';
+import 'package:my_dog_app/services/passeador_service.dart';
 
 class DonoController {
   final DonoService donoService = DonoService();
@@ -47,7 +49,7 @@ class DonoController {
     return null;
   }
 
-  Future<Dono?> verificarLogin(String email, String senha) async {
+  Future<dynamic> verificarLogin(String email, String senha) async {
     final List<Dono> donosExistentes = await donoService.lerDonos();
 
     for (var d in donosExistentes) {
@@ -55,6 +57,16 @@ class DonoController {
         return d; // encontrou, já pode devolver o dono
       }
     }
+
+    final List<Passeador> passeadoresExistentes = await PasseadorService()
+        .carregarPasseadores();
+
+    for (var passeador in passeadoresExistentes) {
+      if (passeador.email == email && passeador.senha == senha) {
+        return passeador; // encontrou, já pode devolver o passeador
+      }
+    }
+  
 
     // se percorreu a lista inteira e não achou
     return null;

@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:my_dog_app/controller/donocontroller.dart';
 import 'package:my_dog_app/models/dono_model.dart';
 
+
+
 class PainelDono extends StatefulWidget {
   final String emailLogado; // email do dono logado
+
   const PainelDono({super.key, required this.emailLogado});
 
   @override
@@ -71,7 +74,9 @@ class _PainelDonoState extends State<PainelDono> {
                       isEditing = false;
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Dados atualizados com sucesso!')),
+                      const SnackBar(
+                        content: Text('Dados atualizados com sucesso!'),
+                      ),
                     );
                   }
                 } else {
@@ -91,13 +96,29 @@ class _PainelDonoState extends State<PainelDono> {
                 key: _formKey,
                 child: ListView(
                   children: [
-                    _textField("Nome", _nomeController, _donoController.validarNome),
+                    _textField(
+                      "Nome",
+                      _nomeController,
+                      _donoController.validarNome,
+                    ),
                     const SizedBox(height: 16),
-                    _textField("Email", _emailController, _donoController.validarEmail),
+                    _textField(
+                      "Email",
+                      _emailController,
+                      _donoController.validarEmail,
+                    ),
                     const SizedBox(height: 16),
-                    _textField("Telefone", _telefoneController, _donoController.validarTelefone),
+                    _textField(
+                      "Telefone",
+                      _telefoneController,
+                      _donoController.validarTelefone,
+                    ),
                     const SizedBox(height: 16),
-                    _textField("Endereço", _enderecoController, _donoController.validarEndereco),
+                    _textField(
+                      "Endereço",
+                      _enderecoController,
+                      _donoController.validarEndereco,
+                    ),
                     const SizedBox(height: 16),
                     _textField("Complemento", _complementoController, null),
                   ],
@@ -107,16 +128,18 @@ class _PainelDonoState extends State<PainelDono> {
     );
   }
 
-  Widget _textField(String label, TextEditingController controller,
-          String? Function(String?)? validator) =>
-      TextFormField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-        ),
-        style: const TextStyle(fontSize: 18),
-        validator: validator,
-        enabled: isEditing,
-      );
+  Widget _textField(
+    String label,
+    TextEditingController controller,
+    String? Function(String?)? validator,
+  ) => TextFormField(
+    controller: controller,
+    decoration: InputDecoration(
+      labelText: label,
+      border: const OutlineInputBorder(),
+    ),
+    style: const TextStyle(fontSize: 18),
+    validator: validator,
+    enabled: isEditing,
+  );
 }

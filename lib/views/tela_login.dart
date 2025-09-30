@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dog_app/controller/donocontroller.dart';
-import 'package:my_dog_app/views/tela_cadastro.dart';
+import 'package:my_dog_app/models/dono_model.dart';
+import 'package:my_dog_app/models/passeador_model.dart';
 
 class telaLogin extends StatefulWidget {
   const telaLogin({super.key});
@@ -81,19 +82,20 @@ class _telaLoginState extends State<telaLogin> {
                             );
 
                             if (resultado == null) {
-                              // Se falhar → erro
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text("Email ou senha incorretos!"),
                                   backgroundColor: Colors.red,
                                 ),
                               );
-                            } else {
-                              // Se der certo → navega para a tela do dono, passando o objeto
-                              GoRouter.of(context).go(
-                                '/tela-inicial-dono', // rota definida no seu GoRouter
-                                extra: resultado, // passa o objeto Dono
-                              );
+                            } else if (resultado is Dono) {
+                              GoRouter.of(
+                                context,
+                              ).go('/tela-inicial-dono', extra: resultado);
+                            } else if (resultado is Passeador) {
+                              GoRouter.of(
+                                context,
+                              ).go('/tela-inicial-passeador', extra: resultado);
                             }
                           }
                         },
