@@ -1,5 +1,5 @@
 import '../models/pet_model.dart';
-import '../services/pet_service.dart';
+import '../service/pet_service.dart';
 
 class PetController {
   final PetService _service;

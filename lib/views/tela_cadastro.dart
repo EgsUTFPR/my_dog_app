@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dog_app/controller/donocontroller.dart';
 import 'package:my_dog_app/controller/passeador_controller.dart';
 import 'package:my_dog_app/models/dono_model.dart';
 import 'package:my_dog_app/models/passeador_model.dart';
-import 'package:my_dog_app/services/dono_service.dart';
-import 'package:my_dog_app/services/passeador_service.dart';
+import 'package:my_dog_app/service/dono_service.dart';
+import 'package:my_dog_app/service/passeador_service.dart';
 
 enum Funcao { dono, passeador }
 
@@ -36,8 +37,9 @@ class _telaCadastroState extends State<telaCadastro> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Cadastro de Usuário'), centerTitle: true),
-      body: Center(
-        child: Padding(
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
@@ -106,10 +108,13 @@ class _telaCadastroState extends State<telaCadastro> {
 
                     TextFormField(
                       controller: _senhaController,
+                      obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Senha',
                         border: OutlineInputBorder(),
                       ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       validator: _donoController.validarSenha,
                     ),
 
