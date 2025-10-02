@@ -1,0 +1,35 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+
+class TelaInicial extends StatefulWidget {
+  const TelaInicial({Key? key}) : super(key: key);
+
+  @override
+  State<TelaInicial> createState() => _TelaInicialState();
+}
+
+class _TelaInicialState extends State<TelaInicial> {
+  void initState() {
+    super.initState();
+    // Inicia um timer quando o widget é criado
+    _navegarParaLogin();
+  }
+
+  _navegarParaLogin() async {
+    // Espera por 3 segundos (3000 milissegundos)
+    await Future.delayed(const Duration(seconds: 3));
+
+    GoRouter.of(context).go('/login');
+    // Navega para a tela de login
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SizedBox.expand(
+        child: Image.asset('images/imagem_tela_inicial.png', fit: BoxFit.fill),
+      ),
+    );
+  }
+}
