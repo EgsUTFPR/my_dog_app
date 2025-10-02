@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:my_dog_app/controller/donocontroller.dart';
 import 'package:my_dog_app/models/dono_model.dart';
 
-
-
 class PainelDono extends StatefulWidget {
-  final String emailLogado; // email do dono logado
+  final String emailLogado;
 
   const PainelDono({super.key, required this.emailLogado});
 
@@ -29,13 +27,12 @@ class _PainelDonoState extends State<PainelDono> {
   @override
   void initState() {
     super.initState();
-    _loadDono(); // chama direto do controller
+    _loadDono();
   }
 
   Future<void> _loadDono() async {
     dono = await _donoController.carregarDono(widget.emailLogado);
 
-    // atualiza os controllers com os dados do dono
     _nomeController.text = dono!.nome;
     _emailController.text = dono!.email;
     _telefoneController.text = dono!.telefone;
@@ -49,7 +46,7 @@ class _PainelDonoState extends State<PainelDono> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Painel do Dono'),
+        title: const Text("Painel do Dono"),
         centerTitle: true,
         actions: [
           if (dono != null)
@@ -58,7 +55,6 @@ class _PainelDonoState extends State<PainelDono> {
               onPressed: () async {
                 if (isEditing) {
                   if (_formKey.currentState!.validate()) {
-                    // chama diretamente o controller
                     dono = await _donoController.atualizarDonoComController(
                       Dono(
                         nome: _nomeController.text,
@@ -70,19 +66,19 @@ class _PainelDonoState extends State<PainelDono> {
                         funcao: dono!.funcao,
                       ),
                     );
-                    setState(() {
-                      isEditing = false;
-                    });
+
+                    setState(() => isEditing = false);
+
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Dados atualizados com sucesso!'),
+                      SnackBar(
+                        content: const Text("Dados atualizados com sucesso!"),
+                        backgroundColor: Colors.green.shade600,
+                        behavior: SnackBarBehavior.floating,
                       ),
                     );
                   }
                 } else {
-                  setState(() {
-                    isEditing = true;
-                  });
+                  setState(() => isEditing = true);
                 }
               },
             ),
@@ -91,36 +87,87 @@ class _PainelDonoState extends State<PainelDono> {
       body: dono == null
           ? const Center(child: CircularProgressIndicator())
           : Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(16.0),
               child: Form(
                 key: _formKey,
                 child: ListView(
                   children: [
                     _textField(
-                      "Nome",
-                      _nomeController,
-                      _donoController.validarNome,
+                      label: "Nome",
+                      controller: _nomeController,
+                      validator: _donoController.validarNome,
+                      icon: Icons.person,
                     ),
                     const SizedBox(height: 16),
                     _textField(
-                      "Email",
-                      _emailController,
-                      _donoController.validarEmail,
+                      label: "Email",
+                      controller: _emailController,
+                      validator: _donoController.validarEmail,
+                      icon: Icons.email,
                     ),
                     const SizedBox(height: 16),
                     _textField(
-                      "Telefone",
-                      _telefoneController,
-                      _donoController.validarTelefone,
+                      label: "Telefone",
+                      controller: _telefoneController,
+                      validator: _donoController.validarTelefone,
+                      icon: Icons.phone,
+                      keyboard: TextInputType.phone,
                     ),
                     const SizedBox(height: 16),
                     _textField(
-                      "Endereço",
-                      _enderecoController,
-                      _donoController.validarEndereco,
+                      label: "Endereço",
+                      controller: _enderecoController,
+                      validator: _donoController.validarEndereco,
+                      icon: Icons.home,
                     ),
                     const SizedBox(height: 16),
-                    _textField("Complemento", _complementoController, null),
+                    _textField(
+                      label: "Complemento",
+                      controller: _complementoController,
+                      validator: null,
+                      icon: Icons.map,
+                    ),
+                    const SizedBox(height: 24),
+                    if (isEditing)
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.save),
+                        label: const Text("Salvar Alterações"),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          textStyle: const TextStyle(fontSize: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            dono = await _donoController
+                                .atualizarDonoComController(
+                                  Dono(
+                                    nome: _nomeController.text,
+                                    email: _emailController.text,
+                                    telefone: _telefoneController.text,
+                                    endereco: _enderecoController.text,
+                                    complemento: _complementoController.text,
+                                    senha: dono!.senha,
+                                    funcao: dono!.funcao,
+                                  ),
+                                );
+
+                            setState(() => isEditing = false);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  "Dados atualizados com sucesso!",
+                                ),
+                                backgroundColor: Colors.green.shade600,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        },
+                      ),
                   ],
                 ),
               ),
@@ -128,18 +175,30 @@ class _PainelDonoState extends State<PainelDono> {
     );
   }
 
-  Widget _textField(
-    String label,
-    TextEditingController controller,
+  Widget _textField({
+    required String label,
+    required TextEditingController controller,
     String? Function(String?)? validator,
-  ) => TextFormField(
-    controller: controller,
-    decoration: InputDecoration(
-      labelText: label,
-      border: const OutlineInputBorder(),
-    ),
-    style: const TextStyle(fontSize: 18),
-    validator: validator,
-    enabled: isEditing,
-  );
+    IconData? icon,
+    TextInputType keyboard = TextInputType.text,
+  }) {
+    return TextFormField(
+      controller: controller,
+      validator: validator,
+      enabled: isEditing,
+      keyboardType: keyboard,
+      style: const TextStyle(fontSize: 18),
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        filled: true,
+        fillColor: isEditing ? Colors.white : Colors.grey.shade200,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade400),
+        ),
+      ),
+    );
+  }
 }
