@@ -63,6 +63,7 @@ class _telaCadastroState extends State<telaCadastro> {
                       controller: _emailController,
                       decoration: InputDecoration(
                         labelText: 'Email',
+                        hintText: 'xxx@xxx.com',
                         border: OutlineInputBorder(),
                       ),
                       style: TextStyle(fontSize: 20),
@@ -75,6 +76,7 @@ class _telaCadastroState extends State<telaCadastro> {
                       controller: _telefoneController,
                       decoration: InputDecoration(
                         labelText: 'Telefone',
+                        hintText: '0000000000',
                         border: OutlineInputBorder(),
                       ),
                       style: TextStyle(fontSize: 20),
