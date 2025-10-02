@@ -57,8 +57,19 @@ class _MeusPetsState extends State<MeusPets> {
             ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () {
-          // aqui vamos abrir o formulário para adicionar pet
+        onPressed: ()async {
+          final resultado = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:(context) => TelaCadastroPer(
+                donoEmail: widget.emailLogado,
+                petController: _petController,
+              ),
+            ),
+          );
+          if (resultado == true){
+            await _loadPets();
+          }
         },
       ),
     );
