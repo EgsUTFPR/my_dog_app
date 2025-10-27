@@ -1,10 +1,20 @@
+import 'package:flutter/foundation.dart';
 import 'package:my_dog_app/models/dono_model.dart';
-import 'package:my_dog_app/models/passeador_model.dart';
 import 'package:my_dog_app/service/dono_service.dart';
 import 'package:my_dog_app/service/passeador_service.dart';
 
-class DonoController {
+class DonoController extends ChangeNotifier {
   final DonoService donoService = DonoService();
+  final PasseadorService passeadorService = PasseadorService();
+
+  // =======================
+  // ESTADO INTERNO
+  // =======================
+  Dono? _donoAtual;
+  bool _carregando = false;
+
+  Dono? get donoAtual => _donoAtual;
+  bool get carregando => _carregando;
 
   // =======================
   // Métodos de validação
@@ -19,7 +29,6 @@ class DonoController {
     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
       return 'Formato de email inválido';
     }
-
     return null;
   }
 
@@ -37,7 +46,6 @@ class DonoController {
     if (endereco == null || endereco.isEmpty) {
       return 'O endereço não pode estar vazio';
     }
-
     return null;
   }
 
@@ -45,51 +53,65 @@ class DonoController {
     if (senha == null || senha.isEmpty) {
       return "Campo obrigatório.";
     }
-
     return null;
   }
 
+  // =======================
+  // LOGIN
+  // =======================
   Future<dynamic> verificarLogin(String email, String senha) async {
-    final List<Dono> donosExistentes = await donoService.lerDonos();
+    _carregando = true;
+    notifyListeners();
+
+    final donosExistentes = await donoService.lerDonos();
 
     for (var d in donosExistentes) {
       if (d.email == email && d.senha == senha) {
-        return d; // encontrou, já pode devolver o dono
+        _donoAtual = d;
+        _carregando = false;
+        notifyListeners();
+        return d;
       }
     }
 
-    final List<Passeador> passeadoresExistentes = await PasseadorService()
-        .carregarPasseadores();
+    final passeadoresExistentes = await passeadorService.carregarPasseadores();
 
     for (var passeador in passeadoresExistentes) {
       if (passeador.email == email && passeador.senha == senha) {
-        return passeador; // encontrou, já pode devolver o passeador
+        _carregando = false;
+        notifyListeners();
+        return passeador;
       }
     }
 
-    // se percorreu a lista inteira e não achou
+    _carregando = false;
+    notifyListeners();
     return null;
   }
 
   // =======================
-  // Salvar dono no JSON
+  // CRUD com JSON
   // =======================
 
   Future<void> cadastrarDono(Dono dono) async {
-    // Lê os donos existentes do JSON
-    final List<Dono> donosExistentes = await donoService.lerDonos();
+    _carregando = true;
+    notifyListeners();
 
-    // Adiciona o novo dono
+    final donosExistentes = await donoService.lerDonos();
     donosExistentes.add(dono);
-
-    // Salva tudo de volta no JSON
     await donoService.salvarDonos(donosExistentes);
+
+    _donoAtual = dono;
+    _carregando = false;
+    notifyListeners();
   }
 
-  // Carrega apenas o dono que corresponde ao email logado
-  Future<Dono> carregarDono(String email) async {
+  Future<void> carregarDono(String email) async {
+    _carregando = true;
+    notifyListeners();
+
     final donos = await donoService.lerDonos();
-    return donos.firstWhere(
+    _donoAtual = donos.firstWhere(
       (d) => d.email == email,
       orElse: () => Dono(
         nome: '',
@@ -101,20 +123,33 @@ class DonoController {
         funcao: '',
       ),
     );
+
+    _carregando = false;
+    notifyListeners();
   }
 
-  // Atualiza o dono existente no JSON
   Future<void> atualizarDono(Dono donoAtualizado) async {
+    _carregando = true;
+    notifyListeners();
+
     final donos = await donoService.lerDonos();
     final index = donos.indexWhere((d) => d.email == donoAtualizado.email);
     if (index != -1) {
       donos[index] = donoAtualizado;
       await donoService.salvarDonos(donos);
+      _donoAtual = donoAtualizado;
     }
+
+    _carregando = false;
+    notifyListeners();
   }
 
-  Future<Dono> atualizarDonoComController(Dono donoAtual) async {
-    await atualizarDono(donoAtual); // usa método existente
-    return donoAtual;
+  // =======================
+  // Outros utilitários
+  // =======================
+
+  void logout() {
+    _donoAtual = null;
+    notifyListeners();
   }
 }

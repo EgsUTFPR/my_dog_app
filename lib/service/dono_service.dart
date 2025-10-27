@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:my_dog_app/models/dono_model.dart';
 
-class DonoService {
+class  DonoService {
   
   Future<File> _getFile() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -30,3 +30,4 @@ class DonoService {
     await file.writeAsString(jsonEncode(jsonData));
   }
 }
+

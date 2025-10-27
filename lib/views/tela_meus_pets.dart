@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:my_dog_app/views/tela_cadastro_pet.dart';
 import '../controller/pet_controller.dart';
-
 
 class MeusPets extends StatefulWidget {
   final String emailLogado;
@@ -12,64 +12,67 @@ class MeusPets extends StatefulWidget {
 }
 
 class _MeusPetsState extends State<MeusPets> {
-  late PetController _petController;
-  bool _loading = true;
-
   @override
   void initState() {
     super.initState();
-    _petController = PetController(widget.emailLogado);
-    _loadPets();
-  }
-
-  Future<void> _loadPets() async {
-    await _petController.carregarPets();
-    setState(() {
-      _loading = false;
+    // Carrega os pets assim que a tela abre
+    Future.microtask(() async {
+      final petCtrl = context.read<PetController>();
+      await petCtrl.carregarPets();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final petCtrl = context.watch<PetController>();
+
     return Scaffold(
-      appBar: AppBar(title: Text('Meus Pets')),
-      body: _loading
-          ? Center(child: CircularProgressIndicator())
-          : _petController.pets.isEmpty
-          ? Center(child: Text('Nenhum pet cadastrado'))
-          : ListView.builder(
-              itemCount: _petController.pets.length,
-              itemBuilder: (context, index) {
-                final pet = _petController.pets[index];
-                return Card(
-                  child: ListTile(
-                    title: Text(pet.nome),
-                    subtitle: Text(pet.raca),
-                    trailing: IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: () async {
-                        await _petController.removerPet(index);
-                        setState(() {}); // atualiza a UI
-                      },
-                    ),
-                  ),
-                );
-              },
-            ),
+      appBar: AppBar(title: const Text('Meus Pets')),
+      body: petCtrl.carregando
+          ? const Center(child: CircularProgressIndicator())
+          : petCtrl.pets.isEmpty
+              ? const Center(child: Text('Nenhum pet cadastrado'))
+              : ListView.builder(
+                  itemCount: petCtrl.pets.length,
+                  itemBuilder: (context, index) {
+                    final pet = petCtrl.pets[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      child: ListTile(
+                        title: Text(
+                          pet.nome,
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        subtitle: Text(pet.raca),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () async {
+                            await petCtrl.removerPet(index);
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
         onPressed: () async {
-                    final resultado = await Navigator.push(
+          final resultado = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => TelaCadastroPet(
-                donoEmail: widget.emailLogado,
-                petController: _petController,
+              builder: (context) => ChangeNotifierProvider.value(
+                value: petCtrl, // 👈 mantém o mesmo controller
+                child: TelaCadastroPet(
+                  donoEmail: widget.emailLogado,
+                  petController: petCtrl,
+                ),
               ),
             ),
           );
+
           if (resultado == true) {
-            await _loadPets();
+            await petCtrl.carregarPets(); // recarrega após cadastrar
           }
         },
       ),

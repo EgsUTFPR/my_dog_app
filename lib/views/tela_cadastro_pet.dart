@@ -99,7 +99,7 @@ class _TelaCadastroPetState extends State<TelaCadastroPet> {
                       value == null || value.isEmpty ? "Digite o peso" : null,
                 ),
                 SizedBox(height: 10),
-                TextFormField(
+                TextFormField(  
                   controller: _corController,
                   decoration: InputDecoration(
                     labelText: "Cor",

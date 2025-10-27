@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "968592351311",
+    "project_id": "mydogapp-35bed",
+    "storage_bucket": "mydogapp-35bed.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:968592351311:android:f8757623210d633aa30a3a",
+        "android_client_info": {
+          "package_name": "com.example.my_dog_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7lUjZijDxQNtcEXulzjnm6GJ4KRvu4l0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

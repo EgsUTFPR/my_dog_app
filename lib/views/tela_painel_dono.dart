@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:my_dog_app/controller/donocontroller.dart';
 import 'package:my_dog_app/models/dono_model.dart';
 
@@ -13,7 +14,6 @@ class PainelDono extends StatefulWidget {
 
 class _PainelDonoState extends State<PainelDono> {
   bool isEditing = false;
-  Dono? dono;
 
   final _formKey = GlobalKey<FormState>();
   final _nomeController = TextEditingController();
@@ -22,28 +22,46 @@ class _PainelDonoState extends State<PainelDono> {
   final _enderecoController = TextEditingController();
   final _complementoController = TextEditingController();
 
-  final DonoController _donoController = DonoController();
-
   @override
   void initState() {
     super.initState();
-    _loadDono();
+    // 🔹 Carrega os dados do dono logado assim que a tela é iniciada
+    Future.microtask(() async {
+      final donoCtrl = context.read<DonoController>();
+      await donoCtrl.carregarDono(widget.emailLogado);
+
+      final dono = donoCtrl.donoAtual;
+      if (dono != null) {
+        _preencherCampos(dono);
+      }
+    });
   }
 
-  Future<void> _loadDono() async {
-    dono = await _donoController.carregarDono(widget.emailLogado);
-
-    _nomeController.text = dono!.nome;
-    _emailController.text = dono!.email;
-    _telefoneController.text = dono!.telefone;
-    _enderecoController.text = dono!.endereco;
-    _complementoController.text = dono!.complemento;
-
-    setState(() {});
+  void _preencherCampos(Dono dono) {
+    _nomeController.text = dono.nome;
+    _emailController.text = dono.email;
+    _telefoneController.text = dono.telefone;
+    _enderecoController.text = dono.endereco;
+    _complementoController.text = dono.complemento;
   }
 
   @override
   Widget build(BuildContext context) {
+    final donoCtrl = context.watch<DonoController>(); // 👈 Observa o estado
+    final dono = donoCtrl.donoAtual;
+
+    // ===============================
+    // LOADING
+    // ===============================
+    if (donoCtrl.carregando) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // ===============================
+    // CONTEÚDO
+    // ===============================
     return Scaffold(
       appBar: AppBar(
         title: const Text("Painel do Dono"),
@@ -55,17 +73,17 @@ class _PainelDonoState extends State<PainelDono> {
               onPressed: () async {
                 if (isEditing) {
                   if (_formKey.currentState!.validate()) {
-                    dono = await _donoController.atualizarDonoComController(
-                      Dono(
-                        nome: _nomeController.text,
-                        email: _emailController.text,
-                        telefone: _telefoneController.text,
-                        endereco: _enderecoController.text,
-                        complemento: _complementoController.text,
-                        senha: dono!.senha,
-                        funcao: dono!.funcao,
-                      ),
+                    final donoAtualizado = Dono(
+                      nome: _nomeController.text,
+                      email: _emailController.text,
+                      telefone: _telefoneController.text,
+                      endereco: _enderecoController.text,
+                      complemento: _complementoController.text,
+                      senha: dono.senha,
+                      funcao: dono.funcao,
                     );
+
+                    await donoCtrl.atualizarDono(donoAtualizado);
 
                     setState(() => isEditing = false);
 
@@ -85,7 +103,7 @@ class _PainelDonoState extends State<PainelDono> {
         ],
       ),
       body: dono == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: Text("Nenhum dono encontrado"))
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: Form(
@@ -95,21 +113,21 @@ class _PainelDonoState extends State<PainelDono> {
                     _textField(
                       label: "Nome",
                       controller: _nomeController,
-                      validator: _donoController.validarNome,
+                      validator: donoCtrl.validarNome,
                       icon: Icons.person,
                     ),
                     const SizedBox(height: 16),
                     _textField(
                       label: "Email",
                       controller: _emailController,
-                      validator: _donoController.validarEmail,
+                      validator: donoCtrl.validarEmail,
                       icon: Icons.email,
                     ),
                     const SizedBox(height: 16),
                     _textField(
                       label: "Telefone",
                       controller: _telefoneController,
-                      validator: _donoController.validarTelefone,
+                      validator: donoCtrl.validarTelefone,
                       icon: Icons.phone,
                       keyboard: TextInputType.phone,
                     ),
@@ -117,7 +135,7 @@ class _PainelDonoState extends State<PainelDono> {
                     _textField(
                       label: "Endereço",
                       controller: _enderecoController,
-                      validator: _donoController.validarEndereco,
+                      validator: donoCtrl.validarEndereco,
                       icon: Icons.home,
                     ),
                     const SizedBox(height: 16),
@@ -141,26 +159,23 @@ class _PainelDonoState extends State<PainelDono> {
                         ),
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            dono = await _donoController
-                                .atualizarDonoComController(
-                                  Dono(
-                                    nome: _nomeController.text,
-                                    email: _emailController.text,
-                                    telefone: _telefoneController.text,
-                                    endereco: _enderecoController.text,
-                                    complemento: _complementoController.text,
-                                    senha: dono!.senha,
-                                    funcao: dono!.funcao,
-                                  ),
-                                );
+                            final donoAtualizado = Dono(
+                              nome: _nomeController.text,
+                              email: _emailController.text,
+                              telefone: _telefoneController.text,
+                              endereco: _enderecoController.text,
+                              complemento: _complementoController.text,
+                              senha: dono.senha,
+                              funcao: dono.funcao,
+                            );
 
+                            await donoCtrl.atualizarDono(donoAtualizado);
                             setState(() => isEditing = false);
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: const Text(
-                                  "Dados atualizados com sucesso!",
-                                ),
+                                content:
+                                    const Text("Dados atualizados com sucesso!"),
                                 backgroundColor: Colors.green.shade600,
                                 behavior: SnackBarBehavior.floating,
                               ),

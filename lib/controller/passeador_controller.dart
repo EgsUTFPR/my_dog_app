@@ -1,51 +1,79 @@
+import 'package:flutter/foundation.dart';
 import 'package:my_dog_app/service/passeador_service.dart';
-
 import '../models/passeador_model.dart';
 
-class PasseadorController {
+class PasseadorController extends ChangeNotifier {
   final PasseadorService _service = PasseadorService();
+
+  Passeador? _passeadorAtual;
+  bool _carregando = false;
+
+  Passeador? get passeadorAtual => _passeadorAtual;
+  bool get carregando => _carregando;
 
   // ===============================
   // Métodos principais
   // ===============================
 
-  Future<List<Passeador>> carregarTodosPasseadores() async {
-    return await _service.carregarPasseadores();
+  Future<void> carregarTodosPasseadores() async {
+    _carregando = true;
+    notifyListeners();
+
+    await _service.carregarPasseadores();
+
+    _carregando = false;
+    notifyListeners();
   }
 
   Future<void> cadastrarPasseador(Passeador passeador) async {
-    await _service.adicionarPasseador(passeador);
-  }
+    _carregando = true;
+    notifyListeners();
 
-  Future<Passeador> atualizarPasseadorController(
-    Passeador passeadorAtual,
-  ) async {
-    await atualizarPasseador(passeadorAtual);
-    return passeadorAtual;
+    await _service.adicionarPasseador(passeador);
+
+    _carregando = false;
+    notifyListeners();
   }
 
   // Recuperar apenas o passeador logado pelo email
-  Future<Passeador?> carregarPasseador(String email) async {
+  Future<void> carregarPasseador(String email) async {
+    _carregando = true;
+    notifyListeners();
+
     final lista = await _service.carregarPasseadores();
     try {
-      return lista.firstWhere((p) => p.email == email);
-    } catch (e) {
-      return null;
+      _passeadorAtual = lista.firstWhere((p) => p.email == email);
+    } catch (_) {
+      _passeadorAtual = null;
     }
+
+    _carregando = false;
+    notifyListeners();
   }
 
   Future<void> atualizarPasseador(Passeador passeadorAtualizado) async {
-    final passeador = await _service.carregarPasseadores();
-    final index = passeador.indexWhere(
-      (d) => d.email == passeadorAtualizado.email,
+    _carregando = true;
+    notifyListeners();
+
+    final passeadores = await _service.carregarPasseadores();
+    final index = passeadores.indexWhere(
+      (p) => p.email == passeadorAtualizado.email,
     );
+
     if (index != -1) {
-      passeador[index] = passeadorAtualizado;
-      await _service.salvarPasseadores(passeador);
+      passeadores[index] = passeadorAtualizado;
+      await _service.salvarPasseadores(passeadores);
+      _passeadorAtual = passeadorAtualizado;
     }
+
+    _carregando = false;
+    notifyListeners();
   }
 
-    String? validarNome(String? nome) {
+  // ===============================
+  // Validações
+  // ===============================
+  String? validarNome(String? nome) {
     if (nome == null || nome.isEmpty) return 'O nome não pode estar vazio';
     return null;
   }
@@ -55,7 +83,6 @@ class PasseadorController {
     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
       return 'Formato de email inválido';
     }
-
     return null;
   }
 
@@ -67,5 +94,13 @@ class PasseadorController {
       return 'Formato de telefone inválido';
     }
     return null;
+  }
+
+  // ===============================
+  // Outros utilitários
+  // ===============================
+  void logout() {
+    _passeadorAtual = null;
+    notifyListeners();
   }
 }
