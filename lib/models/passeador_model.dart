@@ -1,11 +1,14 @@
+
 class Passeador {
-  final String nome;
-  final String email;
-  final String telefone;
-  final String senha;
-  final String funcao;
+  String id;
+  String nome;
+  String email;
+  String telefone;
+  String senha;
+  String funcao;
 
   Passeador({
+    required this.id,
     required this.nome,
     required this.email,
     required this.telefone,
@@ -13,19 +16,25 @@ class Passeador {
     required this.funcao,
   });
 
-  Map<String, dynamic> toJson() => {
-    'nome': nome,
-    'email': email,
-    'telefone': telefone,
-    'senha': senha,
-    'funcao': funcao,
-  };
+  factory Passeador.fromJson(Map<String, dynamic> json) {
+    return Passeador(
+      id: json['id']?.toString() ?? '',
+      nome: json['nome']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      telefone: json['telefone']?.toString() ?? '',
+      senha: json['senha']?.toString() ?? '',
+      funcao: json['funcao']?.toString() ?? '',
+    );
+  }
 
-  factory Passeador.fromJson(Map<String, dynamic> json) => Passeador(
-    nome: json['nome'],
-    email: json['email'],
-    telefone: json['telefone'],
-    senha: json['senha'],
-    funcao: json['funcao'],
-  );
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nome': nome,
+      'email': email,
+      'telefone': telefone,
+      'senha': senha,
+      'funcao': funcao,
+    };
+  }
 }

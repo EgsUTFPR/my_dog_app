@@ -74,6 +74,7 @@ class _PainelDonoState extends State<PainelDono> {
                 if (isEditing) {
                   if (_formKey.currentState!.validate()) {
                     final donoAtualizado = Dono(
+                      id: dono.id,
                       nome: _nomeController.text,
                       email: _emailController.text,
                       telefone: _telefoneController.text,
@@ -160,6 +161,7 @@ class _PainelDonoState extends State<PainelDono> {
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             final donoAtualizado = Dono(
+                              id: dono.id,
                               nome: _nomeController.text,
                               email: _emailController.text,
                               telefone: _telefoneController.text,

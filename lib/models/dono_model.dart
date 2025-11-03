@@ -1,26 +1,41 @@
+// ...existing code...
 class Dono {
-  final String nome;
-  final String email;
-  final String telefone;
-  final String endereco;
-  final String complemento;
-  final String senha;
-  final String funcao;
+  String id;
+  String nome;
+  String email;
+  String telefone;
+  String endereco;
+  String complemento;
+  String senha;
+  String funcao;
 
   Dono({
+    required this.id,
     required this.nome,
     required this.email,
     required this.telefone,
     required this.endereco,
-    this.complemento = '',
+    required this.complemento,
     required this.senha,
     required this.funcao,
   });
 
+  factory Dono.fromJson(Map<String, dynamic> json) {
+    return Dono(
+      id: json['id']?.toString() ?? '',
+      nome: json['nome']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      telefone: json['telefone']?.toString() ?? '',
+      endereco: json['endereco']?.toString() ?? '',
+      complemento: json['complemento']?.toString() ?? '',
+      senha: json['senha']?.toString() ?? '', // evita erro quando for null
+      funcao: json['funcao']?.toString() ?? '',
+    );
+  }
 
-  // Converte objeto -> JSON
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'nome': nome,
       'email': email,
       'telefone': telefone,
@@ -30,17 +45,5 @@ class Dono {
       'funcao': funcao,
     };
   }
-
-  // Converte JSON -> objeto
-  factory Dono.fromJson(Map<String, dynamic> json) {
-    return Dono(
-      nome: json['nome'],
-      email: json['email'],
-      telefone: json['telefone'],
-      endereco: json['endereco'],
-      complemento: json['complemento'] ?? '',
-      senha: json['senha'],
-      funcao: json['funcao'],
-    );
-  }
 }
+// ...existing code...

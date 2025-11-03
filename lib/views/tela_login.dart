@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dog_app/controller/donocontroller.dart';
 import 'package:my_dog_app/models/dono_model.dart';
 import 'package:my_dog_app/models/passeador_model.dart';
+import 'package:provider/provider.dart';
+import 'package:my_dog_app/service/auth_service.dart';
 
 class telaLogin extends StatefulWidget {
   const telaLogin({super.key});
@@ -14,7 +15,6 @@ class telaLogin extends StatefulWidget {
 class _telaLoginState extends State<telaLogin> {
   final _form = GlobalKey<FormState>();
 
-  DonoController dono = DonoController();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
 
@@ -76,7 +76,12 @@ class _telaLoginState extends State<telaLogin> {
                       ElevatedButton(
                         onPressed: () async {
                           if (_form.currentState!.validate()) {
-                            final resultado = await dono.verificarLogin(
+                            final auth = Provider.of<AuthService>(
+                              context,
+                              listen: false,
+                            );
+
+                            final resultado = await auth.verificarLogin(
                               _emailController.text,
                               _senhaController.text,
                             );
@@ -88,15 +93,33 @@ class _telaLoginState extends State<telaLogin> {
                                   backgroundColor: Colors.red,
                                 ),
                               );
-                            } else if (resultado is Dono) {
-                              GoRouter.of(
-                                context,
-                              ).go('/tela-inicial-dono', extra: resultado);
+                              return;
+                            }
+
+                            if (resultado is Dono) {
+                              if (resultado.funcao == 'dono') {
+                                GoRouter.of(
+                                  context,
+                                ).go('/tela-inicial-dono', extra: resultado);
+                              } else {
+                                GoRouter.of(
+                                  context,
+                                ).go('/tela-inicial-dono', extra: resultado);
+                              }
                             } else if (resultado is Passeador) {
                               GoRouter.of(
                                 context,
                               ).go('/tela-inicial-passeador', extra: resultado);
-                            }   
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Tipo de usuário desconhecido.",
+                                  ),
+                                  backgroundColor: Colors.orange,
+                                ),
+                              );
+                            }
                           }
                         },
                         child: Row(

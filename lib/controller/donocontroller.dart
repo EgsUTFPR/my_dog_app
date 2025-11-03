@@ -1,24 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:my_dog_app/models/dono_model.dart';
 import 'package:my_dog_app/service/dono_service.dart';
-import 'package:my_dog_app/service/passeador_service.dart';
 
 class DonoController extends ChangeNotifier {
   final DonoService donoService = DonoService();
-  final PasseadorService passeadorService = PasseadorService();
 
-  // =======================
-  // ESTADO INTERNO
-  // =======================
   Dono? _donoAtual;
   bool _carregando = false;
 
   Dono? get donoAtual => _donoAtual;
   bool get carregando => _carregando;
 
-  // =======================
-  // Métodos de validação
-  // =======================
   String? validarNome(String? nome) {
     if (nome == null || nome.isEmpty) return 'O nome não pode estar vazio';
     return null;
@@ -56,100 +48,34 @@ class DonoController extends ChangeNotifier {
     return null;
   }
 
-  // =======================
-  // LOGIN
-  // =======================
-  Future<dynamic> verificarLogin(String email, String senha) async {
-    _carregando = true;
-    notifyListeners();
-
-    final donosExistentes = await donoService.lerDonos();
-
-    for (var d in donosExistentes) {
-      if (d.email == email && d.senha == senha) {
-        _donoAtual = d;
-        _carregando = false;
-        notifyListeners();
-        return d;
-      }
-    }
-
-    final passeadoresExistentes = await passeadorService.carregarPasseadores();
-
-    for (var passeador in passeadoresExistentes) {
-      if (passeador.email == email && passeador.senha == senha) {
-        _carregando = false;
-        notifyListeners();
-        return passeador;
-      }
-    }
-
-    _carregando = false;
-    notifyListeners();
-    return null;
-  }
-
-  // =======================
-  // CRUD com JSON
-  // =======================
-
-  Future<void> cadastrarDono(Dono dono) async {
-    _carregando = true;
-    notifyListeners();
-
-    final donosExistentes = await donoService.lerDonos();
-    donosExistentes.add(dono);
-    await donoService.salvarDonos(donosExistentes);
-
-    _donoAtual = dono;
-    _carregando = false;
-    notifyListeners();
-  }
-
   Future<void> carregarDono(String email) async {
-    _carregando = true;
-    notifyListeners();
+  _carregando = true;
+  notifyListeners();
 
-    final donos = await donoService.lerDonos();
-    _donoAtual = donos.firstWhere(
-      (d) => d.email == email,
-      orElse: () => Dono(
-        nome: '',
-        email: '',
-        telefone: '',
-        endereco: '',
-        complemento: '',
-        senha: '',
-        funcao: '',
-      ),
-    );
+  final query = await donoService.buscarDonoPorEmail(email);
 
-    _carregando = false;
-    notifyListeners();
+  if (query != null) {
+    _donoAtual = query; // já terá o id vindo do service
   }
+
+  _carregando = false;
+  notifyListeners();
+}
+
 
   Future<void> atualizarDono(Dono donoAtualizado) async {
-    _carregando = true;
-    notifyListeners();
+  _carregando = true;
+  notifyListeners();
 
-    final donos = await donoService.lerDonos();
-    final index = donos.indexWhere((d) => d.email == donoAtualizado.email);
-    if (index != -1) {
-      donos[index] = donoAtualizado;
-      await donoService.salvarDonos(donos);
-      _donoAtual = donoAtualizado;
-    }
-
-    _carregando = false;
-    notifyListeners();
+  try {
+    await donoService.atualizarDono(donoAtualizado);
+    _donoAtual = donoAtualizado;
+  } catch (e) {
+    print("Erro no controller ao atualizar dono: $e");
   }
 
-  // =======================
-  // Outros utilitários
-  // =======================
+  _carregando = false;
+  notifyListeners();
+}
 
-  void logout() {
-    _donoAtual = null;
-    notifyListeners();
-  }
 }

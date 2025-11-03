@@ -1,6 +1,7 @@
+// ...existing code...
 import 'package:flutter/foundation.dart';
+import 'package:my_dog_app/models/passeador_model.dart';
 import 'package:my_dog_app/service/passeador_service.dart';
-import '../models/passeador_model.dart';
 
 class PasseadorController extends ChangeNotifier {
   final PasseadorService _service = PasseadorService();
@@ -11,68 +12,6 @@ class PasseadorController extends ChangeNotifier {
   Passeador? get passeadorAtual => _passeadorAtual;
   bool get carregando => _carregando;
 
-  // ===============================
-  // Métodos principais
-  // ===============================
-
-  Future<void> carregarTodosPasseadores() async {
-    _carregando = true;
-    notifyListeners();
-
-    await _service.carregarPasseadores();
-
-    _carregando = false;
-    notifyListeners();
-  }
-
-  Future<void> cadastrarPasseador(Passeador passeador) async {
-    _carregando = true;
-    notifyListeners();
-
-    await _service.adicionarPasseador(passeador);
-
-    _carregando = false;
-    notifyListeners();
-  }
-
-  // Recuperar apenas o passeador logado pelo email
-  Future<void> carregarPasseador(String email) async {
-    _carregando = true;
-    notifyListeners();
-
-    final lista = await _service.carregarPasseadores();
-    try {
-      _passeadorAtual = lista.firstWhere((p) => p.email == email);
-    } catch (_) {
-      _passeadorAtual = null;
-    }
-
-    _carregando = false;
-    notifyListeners();
-  }
-
-  Future<void> atualizarPasseador(Passeador passeadorAtualizado) async {
-    _carregando = true;
-    notifyListeners();
-
-    final passeadores = await _service.carregarPasseadores();
-    final index = passeadores.indexWhere(
-      (p) => p.email == passeadorAtualizado.email,
-    );
-
-    if (index != -1) {
-      passeadores[index] = passeadorAtualizado;
-      await _service.salvarPasseadores(passeadores);
-      _passeadorAtual = passeadorAtualizado;
-    }
-
-    _carregando = false;
-    notifyListeners();
-  }
-
-  // ===============================
-  // Validações
-  // ===============================
   String? validarNome(String? nome) {
     if (nome == null || nome.isEmpty) return 'O nome não pode estar vazio';
     return null;
@@ -96,9 +35,41 @@ class PasseadorController extends ChangeNotifier {
     return null;
   }
 
-  // ===============================
-  // Outros utilitários
-  // ===============================
+
+
+  // Carrega o passeador pelo email (usa service que consulta Firestore)
+  Future<void> carregarPasseador(String email) async {
+    _carregando = true;
+    notifyListeners();
+
+    try {
+      final resultado = await _service.buscarPasseadorPorEmail(email);
+      _passeadorAtual = resultado;
+    } catch (e) {
+      _passeadorAtual = null;
+      debugPrint('Erro ao carregar passeador: $e');
+    }
+
+    _carregando = false;
+    notifyListeners();
+  }
+
+  // Atualiza o passeador no Firestore
+  Future<void> atualizarPasseador(Passeador passeadorAtualizado) async {
+    _carregando = true;
+    notifyListeners();
+
+    try {
+      await _service.atualizarPasseador(passeadorAtualizado);
+      _passeadorAtual = passeadorAtualizado;
+    } catch (e) {
+      debugPrint('Erro no controller ao atualizar passeador: $e');
+    }
+
+    _carregando = false;
+    notifyListeners();
+  }
+
   void logout() {
     _passeadorAtual = null;
     notifyListeners();

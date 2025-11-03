@@ -1,33 +1,62 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_dog_app/models/dono_model.dart';
 
-class  DonoService {
-  
-  Future<File> _getFile() async {
-    final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}/donos.json');
-  }
+class DonoService {
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   Future<List<Dono>> lerDonos() async {
     try {
-      final file = await _getFile();
-      if (!await file.exists()) return [];
-
-      final conteudo = await file.readAsString();
-      final List<dynamic> jsonData = jsonDecode(conteudo);
-
-      return jsonData.map((e) => Dono.fromJson(e)).toList();
+      final snapshot = await _db.collection('donos').get();
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id; // adiciona o ID do documento
+        return Dono.fromJson(data);
+      }).toList();
     } catch (e) {
-      return [];
+        print('Erro ao ler donos: $e');
+        return [];
     }
   }
 
-  Future<void> salvarDonos(List<Dono> donos) async {
-    final file = await _getFile();
-    final jsonData = donos.map((e) => e.toJson()).toList();
-    await file.writeAsString(jsonEncode(jsonData));
+  Future<Dono?> buscarDonoPorId(String uid) async {
+    final doc = await _db.collection('donos').doc(uid).get();
+    if (doc.exists) {
+      final data = doc.data()!;
+      data['id'] = doc.id;
+      return Dono.fromJson(data);
+    }
+    return null;
+  }
+
+  Future<Dono?> buscarDonoPorEmail(String email) async {
+    try {
+      final query = await _db
+          .collection('donos')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+
+      if (query.docs.isEmpty) return null;
+
+      final doc = query.docs.first;
+      final dados = doc.data();
+      dados['id'] = doc.id;
+
+      return Dono.fromJson(dados);
+    } catch (e) {
+      print('Erro ao buscar dono por email: $e');
+      return null;
+    }
+  }
+
+  
+  Future<void> atualizarDono(Dono dono) async {
+    try {
+      await _db.collection('donos').doc(dono.id).update(dono.toJson());
+    } catch (e) {
+      print("Erro ao atualizar dono: $e");
+      rethrow;
+    }
   }
 }
 

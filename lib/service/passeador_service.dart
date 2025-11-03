@@ -1,65 +1,67 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import '../models/passeador_model.dart';
-
+// ...existing code...
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:my_dog_app/models/passeador_model.dart';
 
 class PasseadorService {
-  // Caminho do arquivo JSON
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-    return '${directory.path}/passeadores.json';
-  }
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  Future<File> get _localFile async {
-    final path = await _localPath;
-    return File(path);
-  }
-
-  // Ler todos os passeadores do JSON
-  Future<List<Passeador>> carregarPasseadores() async {
+  Future<List<Passeador>> lerPasseadores() async {
     try {
-      final file = await _localFile;
-
-      if (!await file.exists()) {
-        await file.writeAsString('[]'); // cria arquivo vazio se não existir
-      }
-
-      final content = await file.readAsString();
-      final List<dynamic> jsonData = jsonDecode(content);
-
-      return jsonData.map((p) => Passeador.fromJson(p)).toList();
+      final snapshot = await _db.collection('passeadores').get();
+      return snapshot.docs.map((doc) {
+        final data = Map<String, dynamic>.from(doc.data());
+        // garante que o id do documento seja passado para o model
+        data['id'] = doc.id;
+        return Passeador.fromJson(data);
+      }).toList();
     } catch (e) {
-      print('Erro ao carregar passeadores: $e');
+      debugPrint('Erro ao ler passeadores: $e');
       return [];
     }
   }
 
-  // Salvar todos os passeadores no JSON
-  Future<void> salvarPasseadores(List<Passeador> passeadores) async {
-    final file = await _localFile;
-    final jsonData = jsonEncode(passeadores.map((p) => p.toJson()).toList());
-    await file.writeAsString(jsonData);
-  }
-
-  // Adicionar um novo passeador
-  Future<void> adicionarPasseador(Passeador passeador) async {
-    final lista = await carregarPasseadores();
-    lista.add(passeador);
-    await salvarPasseadores(lista);
-  }
-
-  // Atualizar dados de um passeador
-  Future<void> atualizarPasseador(Passeador passeador) async {
-    final lista = await carregarPasseadores();
-    final index = lista.indexWhere((p) => p.email == passeador.email);
-    if (index != -1) {
-      lista[index] = passeador;
-      await salvarPasseadores(lista);
+  Future<Passeador?> buscarPasseadorPorId(String uid) async {
+    try {
+      final doc = await _db.collection('passeadores').doc(uid).get();
+      if (doc.exists && doc.data() != null) {
+        final data = Map<String, dynamic>.from(doc.data()!);
+        data['id'] = doc.id;
+        return Passeador.fromJson(data);
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Erro ao buscar passeador por id: $e');
+      return null;
     }
   }
 
-  // Adicionar passeio na agenda do passeador
- 
+  Future<Passeador?> buscarPasseadorPorEmail(String email) async {
+    try {
+      final query = await _db
+          .collection('passeadores')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
 
+      if (query.docs.isEmpty) return null;
+
+      final doc = query.docs.first;
+      final data = Map<String, dynamic>.from(doc.data());
+      data['id'] = doc.id;
+      return Passeador.fromJson(data);
+    } catch (e) {
+      debugPrint('Erro ao buscar passeador por email: $e');
+      return null;
+    }
+  }
+
+  Future<void> atualizarPasseador(Passeador passeador) async {
+    try {
+      await _db.collection('passeadores').doc(passeador.id).update(passeador.toJson());
+    } catch (e) {
+      debugPrint('Erro ao atualizar passeador: $e');
+      rethrow;
+    }
+  }
 }

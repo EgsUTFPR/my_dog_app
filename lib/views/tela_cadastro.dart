@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dog_app/controller/donocontroller.dart';
-import 'package:my_dog_app/controller/passeador_controller.dart';
-import 'package:my_dog_app/models/dono_model.dart';
-import 'package:my_dog_app/models/passeador_model.dart';
-import 'package:my_dog_app/service/dono_service.dart';
-import 'package:my_dog_app/service/passeador_service.dart';
+
+import 'package:my_dog_app/service/auth_service.dart';
+
+import 'package:provider/provider.dart';
 
 enum Funcao { dono, passeador }
 
@@ -27,9 +26,6 @@ class _telaCadastroState extends State<telaCadastro> {
   final _senhaController = TextEditingController();
 
   final DonoController _donoController = DonoController();
-  final PasseadorController _passeadorController = PasseadorController();
-  final DonoService _donoService = DonoService();
-  final PasseadorService _passeadorService = PasseadorService();
 
   Funcao? _funcaoEscolhida;
 
@@ -165,76 +161,59 @@ class _telaCadastroState extends State<telaCadastro> {
                             return;
                           }
 
-                          if (_funcaoEscolhida == Funcao.dono) {
-                            final dono = Dono(
-                              nome: _nomeController.text,
-                              email: _emailController.text,
-                              telefone: _telefoneController.text,
-                              endereco: _enderecoController.text,
-                              complemento: _complementoController.text,
-                              senha: _senhaController.text,
-                              funcao: 'dono',
-                            );
+                          final auth = Provider.of<AuthService>(
+                            context,
+                            listen: false,
+                          );
 
-                            await _donoController.cadastrarDono(dono);
-                            print("=== Donos cadastrados ===");
-                            final todosDonos = await _donoService.lerDonos();
-                            for (var d in todosDonos) {
-                              print(
-                                "${d.nome} | ${d.email} | ${d.telefone} | ${d.funcao}",
+                          try {
+                            if (_funcaoEscolhida == Funcao.dono) {
+                              await auth.cadastrarDono(
+                                _emailController.text.trim(),
+                                _senhaController.text.trim(),
+                                {
+                                  'nome': _nomeController.text.trim(),
+                                  'telefone': _telefoneController.text.trim(),
+                                  'endereco': _enderecoController.text.trim(),
+                                  'complemento': _complementoController.text
+                                      .trim(),
+                                  'funcao': 'dono',
+                                },
+                              );
+                            } else {
+                              await auth.cadastrarPasseador(
+                                _emailController.text.trim(),
+                                _senhaController.text.trim(),
+                                {
+                                  'nome': _nomeController.text.trim(),
+                                  'telefone': _telefoneController.text.trim(),
+                                  'funcao': 'passeador',
+                                },
                               );
                             }
+
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
-                                  'Usuário cadastrado com sucesso.',
+                                  'Usuário cadastrado com sucesso!',
                                 ),
+                                backgroundColor: Colors.green,
                               ),
                             );
-                          }
 
-                          if (_funcaoEscolhida == Funcao.passeador) {
-                            final passeador = Passeador(
-                              nome: _nomeController.text,
-                              email: _emailController.text,
-                              telefone: _telefoneController.text,
-                              senha: _senhaController.text,
-                              funcao: 'passeador',
-                            );
-
-                            await _passeadorController.cadastrarPasseador(
-                              passeador,
-                            );
-                            print("=== Passeadores cadastrados ===");
-                            final todosPasseadores = await _passeadorService
-                                .carregarPasseadores();
-                            for (var p in todosPasseadores) {
-                              print(
-                                "${p.nome} | ${p.email} | ${p.telefone} | ${p.funcao}",
-                              );
-                            }
+                            await Future.delayed(const Duration(seconds: 1));
+                            GoRouter.of(context).go('/login');
+                          } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Usuário cadastrado com sucesso.',
-                                ),
+                              SnackBar(
+                                content: Text('Erro: ${e.toString()}'),
+                                backgroundColor: Colors.red,
                               ),
                             );
                           }
-
-                          _nomeController.clear();
-                          _emailController.clear();
-                          _telefoneController.clear();
-                          _enderecoController.clear();
-                          _complementoController.clear();
-                          _senhaController.clear();
-
-                          await Future.delayed(Duration(seconds: 1));
-                          GoRouter.of(context).go('/login');
-
-                          // Processar os dados
                         }
                       },
+
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

@@ -58,6 +58,7 @@ class _PainelPasseadorState extends State<PainelPasseador> {
                 if (isEditing) {
                   if (_formKey.currentState!.validate()) {
                     final atualizado = Passeador(
+                      id: passeador.id,
                       nome: _nomeController.text,
                       email: _emailController.text,
                       telefone: _telefoneController.text,
@@ -122,6 +123,7 @@ class _PainelPasseadorState extends State<PainelPasseador> {
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             final atualizado = Passeador(
+                              id: passeador.id,
                               nome: _nomeController.text,
                               email: _emailController.text,
                               telefone: _telefoneController.text,

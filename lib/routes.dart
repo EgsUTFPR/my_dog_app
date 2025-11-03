@@ -8,10 +8,14 @@ import 'package:my_dog_app/views/tela_inicial_dono.dart';
 import 'package:my_dog_app/views/tela_inicial_passeador.dart';
 import 'package:my_dog_app/views/tela_login.dart';
 import 'package:my_dog_app/views/tela_cadastro_pet.dart';
+import 'package:my_dog_app/widgets/auth_check.dart';
 
 final routes = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => const TelaInicial()),
+
+    GoRoute(path: '/auth', builder: (context, state) => const AuthCheck()),
+
     GoRoute(path: '/login', builder: (context, state) => const telaLogin()),
 
     GoRoute(
