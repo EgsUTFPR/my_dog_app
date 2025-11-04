@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_dog_app/controller/pet_controller.dart';
 import 'package:my_dog_app/models/dono_model.dart';
 import 'package:my_dog_app/models/passeador_model.dart';
 import 'package:provider/provider.dart';
@@ -97,15 +98,12 @@ class _telaLoginState extends State<telaLogin> {
                             }
 
                             if (resultado is Dono) {
-                              if (resultado.funcao == 'dono') {
-                                GoRouter.of(
-                                  context,
-                                ).go('/tela-inicial-dono', extra: resultado);
-                              } else {
-                                GoRouter.of(
-                                  context,
-                                ).go('/tela-inicial-dono', extra: resultado);
-                              }
+                              context.read<PetController>().configurarDono(
+                                resultado.id,
+                              );
+                              GoRouter.of(
+                                context,
+                              ).go('/tela-inicial-dono', extra: resultado);
                             } else if (resultado is Passeador) {
                               GoRouter.of(
                                 context,

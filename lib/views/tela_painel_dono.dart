@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:my_dog_app/controller/donocontroller.dart';
 import 'package:my_dog_app/models/dono_model.dart';
@@ -54,9 +56,7 @@ class _PainelDonoState extends State<PainelDono> {
     // LOADING
     // ===============================
     if (donoCtrl.carregando) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     // ===============================
@@ -101,8 +101,24 @@ class _PainelDonoState extends State<PainelDono> {
                 }
               },
             ),
+
+          // 🔻 NOVO BOTÃO DE LOGOUT
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sair',
+            onPressed: () async {
+              // desloga do Firebase
+              await FirebaseAuth.instance.signOut();
+
+              if (!mounted) return;
+
+              // navega pra tela de login
+              context.go('/login');
+            },
+          ),
         ],
       ),
+
       body: dono == null
           ? const Center(child: Text("Nenhum dono encontrado"))
           : Padding(
@@ -176,8 +192,9 @@ class _PainelDonoState extends State<PainelDono> {
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content:
-                                    const Text("Dados atualizados com sucesso!"),
+                                content: const Text(
+                                  "Dados atualizados com sucesso!",
+                                ),
                                 backgroundColor: Colors.green.shade600,
                                 behavior: SnackBarBehavior.floating,
                               ),

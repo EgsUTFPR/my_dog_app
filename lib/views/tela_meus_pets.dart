@@ -4,8 +4,7 @@ import 'package:my_dog_app/views/tela_cadastro_pet.dart';
 import '../controller/pet_controller.dart';
 
 class MeusPets extends StatefulWidget {
-  final String emailLogado;
-  const MeusPets({super.key, required this.emailLogado});
+  const MeusPets({super.key}); // 👈 removeu o donoId
 
   @override
   State<MeusPets> createState() => _MeusPetsState();
@@ -38,7 +37,9 @@ class _MeusPetsState extends State<MeusPets> {
                     final pet = petCtrl.pets[index];
                     return Card(
                       margin: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       child: ListTile(
                         title: Text(
                           pet.nome,
@@ -48,7 +49,7 @@ class _MeusPetsState extends State<MeusPets> {
                         trailing: IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () async {
-                            await petCtrl.removerPet(index);
+                            await petCtrl.excluirPet(pet); // ok com opção B
                           },
                         ),
                       ),
@@ -61,13 +62,7 @@ class _MeusPetsState extends State<MeusPets> {
           final resultado = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ChangeNotifierProvider.value(
-                value: petCtrl, // 👈 mantém o mesmo controller
-                child: TelaCadastroPet(
-                  donoEmail: widget.emailLogado,
-                  petController: petCtrl,
-                ),
-              ),
+              builder: (context) => const TelaCadastroPet(), // 👈 sem provider extra
             ),
           );
 

@@ -39,13 +39,7 @@ final routes = GoRouter(
     ),
     GoRoute(
       path: '/tela-cadastro-pet',
-      builder: (context, state) {
-        final petcontroller = state.extra as PetController;
-        return TelaCadastroPet(
-          donoEmail: "Teste@gmail.com",
-          petController: petcontroller,
-        );
-      },
+      builder: (context, state) => const TelaCadastroPet(),
     ),
   ],
 );

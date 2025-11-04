@@ -38,7 +38,7 @@ class _TelaInicialDonoState extends State<TelaInicialDono> {
           PainelDono(
             emailLogado: widget.dono.email,
           ), // <- passei o email do dono logado
-          MeusPets(emailLogado: widget.dono.email),
+          MeusPets(),
           Passeios(),
         ],
         onPageChanged: (value) {
