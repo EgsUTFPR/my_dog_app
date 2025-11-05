@@ -27,7 +27,7 @@ class _PainelDonoState extends State<PainelDono> {
   @override
   void initState() {
     super.initState();
-    // 🔹 Carrega os dados do dono logado assim que a tela é iniciada
+
     Future.microtask(() async {
       final donoCtrl = context.read<DonoController>();
       await donoCtrl.carregarDono(widget.emailLogado);
@@ -52,16 +52,10 @@ class _PainelDonoState extends State<PainelDono> {
     final donoCtrl = context.watch<DonoController>(); // 👈 Observa o estado
     final dono = donoCtrl.donoAtual;
 
-    // ===============================
-    // LOADING
-    // ===============================
     if (donoCtrl.carregando) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    // ===============================
-    // CONTEÚDO
-    // ===============================
     return Scaffold(
       appBar: AppBar(
         title: const Text("Painel do Dono"),
@@ -102,7 +96,6 @@ class _PainelDonoState extends State<PainelDono> {
               },
             ),
 
-          // 🔻 NOVO BOTÃO DE LOGOUT
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Sair',

@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:my_dog_app/controller/passeador_controller.dart';
 import 'package:my_dog_app/models/passeador_model.dart';
@@ -81,6 +83,19 @@ class _PainelPasseadorState extends State<PainelPasseador> {
                 }
               },
             ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sair',
+            onPressed: () async {
+              // desloga do Firebase
+              await FirebaseAuth.instance.signOut();
+
+              if (!mounted) return;
+
+              // navega pra tela de login
+              context.go('/login');
+            },
+          ),
         ],
       ),
       body: passeador == null
