@@ -38,7 +38,11 @@ class _TelaInicialDonoState extends State<TelaInicialDono> {
         children: [
           PainelDono(emailLogado: widget.dono.email),
           MeusPets(),
-          Passeios(donoId: widget.dono.id, enderecoDono: widget.dono.endereco),
+          Passeios(
+            donoId: widget.dono.id,
+            enderecoDono: widget.dono.endereco,
+            pageController: pc,
+          ),
           PasseiosDono(donoId: widget.dono.id),
         ],
         onPageChanged: (value) {

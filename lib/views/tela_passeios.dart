@@ -5,8 +5,14 @@ import 'package:go_router/go_router.dart';
 class Passeios extends StatefulWidget {
   final String donoId;
   final String enderecoDono;
+  final PageController pageController;
 
-  const Passeios({super.key, required this.donoId, required this.enderecoDono});
+  const Passeios({
+    super.key,
+    required this.donoId,
+    required this.enderecoDono,
+    required this.pageController,
+  });
 
   @override
   State<Passeios> createState() => _PasseiosState();
@@ -123,7 +129,8 @@ class _PasseiosState extends State<Passeios> {
                       const SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () {
-                          GoRouter.of(context).go('/tela-cadastro-pet');
+                          widget.pageController.jumpToPage(1);
+                          //GoRouter.of(context).go('/tela-cadastro-pet');
                         },
                         child: const Text("Cadastrar Pet"),
                       ),
