@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:my_dog_app/views/mapa_local.dart';
 
 class PasseiosAceitosPasseador extends StatelessWidget {
   final String passeadorId;
@@ -38,7 +41,13 @@ class PasseiosAceitosPasseador extends StatelessWidget {
               final doc = dados[index].data() as Map<String, dynamic>;
 
               final nomePet = doc['pet'] ?? 'Pet';
-              final endereco = doc['endereco'] ?? 'Endereço não informado';
+
+              final enderecoInicio =
+                  doc['enderecoInicio'] ?? 'Ainda não definido';
+
+              final inicioLat = doc['inicioLat'];
+              final inicioLng = doc['inicioLng'];
+
               final dataIso = doc['dataHora'] ?? '';
               final dataHora = DateTime.tryParse(dataIso);
 
@@ -65,22 +74,42 @@ class PasseiosAceitosPasseador extends StatelessWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
 
                       Row(
                         children: [
-                          const Icon(Icons.location_on),
+                          const Icon(Icons.my_location),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              endereco,
+                              "Início do passeio:\n$enderecoInicio",
                               style: const TextStyle(fontSize: 16),
                             ),
                           ),
                         ],
                       ),
 
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 10),
+
+                      if (inicioLat != null && inicioLng != null)
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => MapaLocal(
+                                  lat: inicioLat,
+                                  lng: inicioLng,
+                                  endereco: enderecoInicio,
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.map),
+                          label: const Text("Ver no Mapa"),
+                        ),
+
+                      const SizedBox(height: 10),
 
                       Row(
                         children: [
